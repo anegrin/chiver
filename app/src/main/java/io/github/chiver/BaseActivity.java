@@ -5,8 +5,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -49,6 +47,7 @@ abstract class BaseActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
+        menu.findItem(R.id.mi_info).setVisible(home);
         _onCreateOptionsMenu(menu);
         return true;
     }
@@ -78,7 +77,7 @@ abstract class BaseActivity extends AppCompatActivity {
 
     @SuppressWarnings("all")
     final boolean onInfo(MenuItem item) {
-        startActivity(new Intent(this, OssLicensesMenuActivity.class));
+        startActivity(new Intent(this, OSSActivity.class));
         return true;
     }
 

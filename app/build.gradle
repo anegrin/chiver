@@ -33,5 +33,4 @@ dependencies {
     implementation 'com.android.volley:dc-volley:1.1.0'
     implementation 'com.jakewharton:disklrucache:2.0.2'
     implementation 'commons-io:commons-io:2.6'
-    implementation 'com.google.android.gms:play-services-oss-licenses:17.0.0'
 }
