@@ -5,22 +5,32 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class OSSActivity extends BaseActivity {
 
-    private final List<String> items = new LinkedList<>();
-    private final List<String> links = new LinkedList<>();
+    private final Map<String, List<String>> linksToItems = new HashMap<>();
+    private final List<String> distinctLinks = new LinkedList<>();
 
     public OSSActivity() {
         super(false);
@@ -31,6 +41,9 @@ public class OSSActivity extends BaseActivity {
         //noinspection ConstantConditions
         getSupportActionBar().setTitle(R.string.oss_licenses);
         ListView lvLicenses = findViewById(R.id.lv_licenses);
+
+        final List<String> links = new LinkedList<>();
+        final List<String> items = new LinkedList<>();
 
         try (InputStream is = getResources().openRawResource(R.raw.third_party_license_metadata);
              InputStreamReader isr = new InputStreamReader(is);
@@ -52,8 +65,32 @@ public class OSSActivity extends BaseActivity {
             onLoadingError();
         }
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_list_item_1, android.R.id.text1, items);
+        for (Iterator<String> itemsIterator = items.iterator(), linksIterator = links.iterator(); itemsIterator.hasNext() && linksIterator.hasNext(); ) {
+            String item = itemsIterator.next();
+            String link = linksIterator.next();
+
+            List<String> itemsList = linksToItems.computeIfAbsent(link, k -> new LinkedList<>());
+            itemsList.add(item);
+        }
+
+        distinctLinks.addAll(linksToItems.keySet());
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_2, android.R.id.text1, distinctLinks) {
+            @NonNull
+            @Override
+            public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+
+                String link = distinctLinks.get(position);
+
+                TextView text2 = view.findViewById(android.R.id.text2);
+                //noinspection ConstantConditions,SimplifyStreamApiCallChains
+                text2.setText(linksToItems.getOrDefault(link, Collections.emptyList()).stream().collect(Collectors.joining(", ")));
+
+                return view;
+            }
+        };
 
         lvLicenses.setAdapter(adapter);
 
@@ -62,13 +99,13 @@ public class OSSActivity extends BaseActivity {
 
     private void onLoadingError() {
         Toast.makeText(this, R.string.loadingError, Toast.LENGTH_SHORT).show();
-        items.clear();
-        links.clear();
+        distinctLinks.clear();
+        linksToItems.clear();
     }
 
     @SuppressWarnings("unused")
     private void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-        String link = links.get(position);
+        String link = distinctLinks.get(position);
         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(link)));
     }
 
