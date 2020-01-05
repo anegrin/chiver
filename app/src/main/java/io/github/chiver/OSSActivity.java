@@ -5,32 +5,25 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import io.github.chiver.adapter.LicenseAdapter;
 
 public class OSSActivity extends BaseActivity {
 
     private final Map<String, List<String>> linksToItems = new HashMap<>();
-    private final List<String> distinctLinks = new LinkedList<>();
 
     public OSSActivity() {
         super(false);
@@ -73,24 +66,7 @@ public class OSSActivity extends BaseActivity {
             itemsList.add(item);
         }
 
-        distinctLinks.addAll(linksToItems.keySet());
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_2, android.R.id.text1, distinctLinks) {
-            @NonNull
-            @Override
-            public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-                View view = super.getView(position, convertView, parent);
-
-                String link = distinctLinks.get(position);
-
-                TextView text2 = view.findViewById(android.R.id.text2);
-                //noinspection ConstantConditions,SimplifyStreamApiCallChains
-                text2.setText(linksToItems.getOrDefault(link, Collections.emptyList()).stream().collect(Collectors.joining(", ")));
-
-                return view;
-            }
-        };
+        LicenseAdapter adapter = new LicenseAdapter(this, linksToItems);
 
         lvLicenses.setAdapter(adapter);
 
@@ -99,13 +75,12 @@ public class OSSActivity extends BaseActivity {
 
     private void onLoadingError() {
         Toast.makeText(this, R.string.loadingError, Toast.LENGTH_SHORT).show();
-        distinctLinks.clear();
         linksToItems.clear();
     }
 
     @SuppressWarnings("unused")
     private void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-        String link = distinctLinks.get(position);
+        String link = adapterView.getAdapter().getItem(position).toString();
         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(link)));
     }
 

@@ -1,0 +1,3 @@
+Chiver is a minimalistic theCHIVE galleries browser.
+
+The app can display images and animated GIFs; it does not display videos (but you can open the gallery in external browser).
