@@ -18,7 +18,7 @@ public class Chiver extends Application {
     public void onCreate() {
         super.onCreate();
         try {
-            simpleDiskCache = SimpleDiskCache.open(getExternalCacheDir(), 1, 32 * 1024 * 1024);
+            simpleDiskCache = SimpleDiskCache.open(getExternalCacheDir(), 1, 64 * 1024 * 1024);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

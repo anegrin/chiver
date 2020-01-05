@@ -87,7 +87,7 @@ public class MainActivity extends BaseActivity {
         int month = utc.get(Calendar.MONTH) + 1;//0 based
         int day = utc.get(Calendar.DAY_OF_MONTH);
 
-        StringRequest stringRequest = new StringRequest(String.format(Locale.getDefault(), Constants.TC_SITEMAP_PATTERN, year, month, day), response -> {
+        StringRequest stringRequest = new StringRequest(String.format(Locale.getDefault(), Constants.TC_SITEMAP_PATTERN, year, month, day, String.valueOf(Math.random())), response -> {
 
             SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
             try {
