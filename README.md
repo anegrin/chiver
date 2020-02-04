@@ -13,3 +13,10 @@ This program is Free Software: You can use, study share and improve it at your w
 The codebase includes `cz.fhucho.android.util.SimpleDiskCache` from [simple-disk-cache repository](https://github.com/fhucho/simple-disk-cache) also licensed under [APACHE LICENSE, VERSION 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
 The launcher icon is derived from the original vector file [Saxophone SVG Vector](https://www.svgrepo.com/svg/113905/saxophone) licensed under [Creative Commons BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+
+Donations
+=========
+
+[![Paypal](https://www.paypalobjects.com/en_US/i/logo/paypal_logo.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=XVKKZQ4VAUBXJ&source=url)
+
+[![Donate](https://www.paypalobjects.com/en_GB/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=XVKKZQ4VAUBXJ&source=url)
