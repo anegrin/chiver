@@ -7,6 +7,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -25,9 +29,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import io.github.chiver.adapter.GalleryAdapter;
 import io.github.chiver.util.SitemapSAXParser;
 
@@ -36,10 +37,14 @@ public class MainActivity extends BaseActivity {
     private GalleryAdapter adapter;
     private RequestQueue requestQueue;
     private int daysCounter = 0;
+    private ProgressDialog progressDialog;
 
 
     @Override
     protected void _onCreate(Bundle savedInstanceState) {
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(getString(R.string.loading));
+
         RecyclerView recyclerView = findViewById(R.id.rv_galleries);
         recyclerView.setHasFixedSize(true);
         adapter = new GalleryAdapter(this, getChiver().getSimpleDiskCache());
@@ -51,6 +56,9 @@ public class MainActivity extends BaseActivity {
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                if (progressDialog.isShowing()) {
+                    return;
+                }
                 if (layoutManager != null) {
                     boolean canScroll = layoutManager.findLastCompletelyVisibleItemPosition() < adapter.getItemCount() - 1;
                     if (!canScroll) {
@@ -76,8 +84,6 @@ public class MainActivity extends BaseActivity {
 
     private void loadGalleries() {
 
-        final ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage(getString(R.string.loading));
         progressDialog.show();
 
         Calendar utc = GregorianCalendar.getInstance(TimeZone.getTimeZone("UTC"));
@@ -88,29 +94,21 @@ public class MainActivity extends BaseActivity {
         int day = utc.get(Calendar.DAY_OF_MONTH);
 
         StringRequest stringRequest = new StringRequest(String.format(Locale.getDefault(), Constants.TC_SITEMAP_PATTERN, year, month, day, String.valueOf(Math.random())), response -> {
-
-            SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-            try {
-                SAXParser saxParser = saxParserFactory.newSAXParser();
-                SitemapSAXParser handler = new SitemapSAXParser(adapter::addItem);
-                saxParser.parse(new InputSource(new StringReader(response)), handler);
-            } catch (ParserConfigurationException | SAXException | IOException e) {
-                Log.e("Volley", e.getMessage(), e);
-                progressDialog.dismiss();
-                Toast.makeText(MainActivity.this, R.string.loadingError, Toast.LENGTH_SHORT).show();
-            }
-
-            daysCounter--;
-
-            adapter.notifyDataSetChanged();
-            progressDialog.dismiss();
+            parseAndNotifyProgress(response, progressDialog);
         }, error -> {
 
             if (error.networkResponse != null && error.networkResponse.statusCode == 404) {
-                daysCounter--;
-                progressDialog.dismiss();
-                Toast.makeText(MainActivity.this, R.string.backInTime, Toast.LENGTH_SHORT).show();
-                loadGalleries();
+
+                //sometimes we get 404 but even if we get proper response
+                if (isValidResponse(error.networkResponse.data)) {
+                    String response = new String(error.networkResponse.data);
+                    parseAndNotifyProgress(response, progressDialog);
+                } else {
+                    daysCounter--;
+                    progressDialog.dismiss();
+                    Toast.makeText(MainActivity.this, R.string.backInTime, Toast.LENGTH_SHORT).show();
+                    loadGalleries();
+                }
                 return;
             }
 
@@ -119,6 +117,35 @@ public class MainActivity extends BaseActivity {
             Toast.makeText(MainActivity.this, R.string.loadingError, Toast.LENGTH_SHORT).show();
         });
         getRequestQueue().add(stringRequest);
+    }
+
+    private boolean isValidResponse(byte[] data) {
+        //does it start with '<?xml' ?
+        return data != null
+                && data.length > 5
+                && data[0] == '<'
+                && data[1] == '?'
+                && data[2] == 'x'
+                && data[3] == 'm'
+                && data[4] == 'l';
+    }
+
+    private void parseAndNotifyProgress(String response, ProgressDialog progressDialog) {
+        SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+        try {
+            SAXParser saxParser = saxParserFactory.newSAXParser();
+            SitemapSAXParser handler = new SitemapSAXParser(adapter::addItem);
+            saxParser.parse(new InputSource(new StringReader(response)), handler);
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            Log.e("Volley", e.getMessage(), e);
+            progressDialog.dismiss();
+            Toast.makeText(MainActivity.this, R.string.loadingError, Toast.LENGTH_SHORT).show();
+        }
+
+        daysCounter--;
+
+        adapter.notifyDataSetChanged();
+        progressDialog.dismiss();
     }
 
     private synchronized RequestQueue getRequestQueue() {
@@ -133,8 +160,8 @@ public class MainActivity extends BaseActivity {
     @Override
     protected boolean onRefresh(MenuItem item) {
         adapter.clearItems();
-        adapter.notifyDataSetChanged();
         resetDaysCounter();
+        adapter.notifyDataSetChanged();
         loadGalleries();
         return super.onRefresh(item);
     }
