@@ -20,23 +20,20 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.Locale;
-import java.util.TimeZone;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import io.github.chiver.adapter.GalleryAdapter;
-import io.github.chiver.util.SitemapSAXParser;
+import io.github.chiver.util.FeedSAXParser;
 
 public class MainActivity extends BaseActivity {
 
     private GalleryAdapter adapter;
     private RequestQueue requestQueue;
-    private int daysCounter = 0;
+    private int page = 1;
     private ProgressDialog progressDialog;
 
 
@@ -86,14 +83,8 @@ public class MainActivity extends BaseActivity {
 
         progressDialog.show();
 
-        Calendar utc = GregorianCalendar.getInstance(TimeZone.getTimeZone("UTC"));
-        utc.add(Calendar.DAY_OF_YEAR, daysCounter);
-
-        int year = utc.get(Calendar.YEAR);
-        int month = utc.get(Calendar.MONTH) + 1;//0 based
-        int day = utc.get(Calendar.DAY_OF_MONTH);
-
-        StringRequest stringRequest = new StringRequest(String.format(Locale.getDefault(), Constants.TC_SITEMAP_PATTERN, year, month, day, String.valueOf(Math.random())), response -> {
+        String url = page == 1 ? Constants.TC_MAIN_FEED : String.format(Locale.getDefault(), Constants.TC_FEED_PATTERN, page);
+        StringRequest stringRequest = new StringRequest(url, response -> {
             parseAndNotifyProgress(response, progressDialog);
         }, error -> {
 
@@ -104,9 +95,9 @@ public class MainActivity extends BaseActivity {
                     String response = new String(error.networkResponse.data);
                     parseAndNotifyProgress(response, progressDialog);
                 } else {
-                    daysCounter--;
+                    page++;
                     progressDialog.dismiss();
-                    Toast.makeText(MainActivity.this, R.string.backInTime, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, R.string.tryNextPage, Toast.LENGTH_SHORT).show();
                     loadGalleries();
                 }
                 return;
@@ -134,7 +125,7 @@ public class MainActivity extends BaseActivity {
         SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
         try {
             SAXParser saxParser = saxParserFactory.newSAXParser();
-            SitemapSAXParser handler = new SitemapSAXParser(adapter::addItem);
+            FeedSAXParser handler = new FeedSAXParser(adapter::addItem);
             saxParser.parse(new InputSource(new StringReader(response)), handler);
         } catch (ParserConfigurationException | SAXException | IOException e) {
             Log.e("Volley", e.getMessage(), e);
@@ -142,7 +133,7 @@ public class MainActivity extends BaseActivity {
             Toast.makeText(MainActivity.this, R.string.loadingError, Toast.LENGTH_SHORT).show();
         }
 
-        daysCounter--;
+        page++;
 
         adapter.notifyDataSetChanged();
         progressDialog.dismiss();
@@ -167,6 +158,6 @@ public class MainActivity extends BaseActivity {
     }
 
     private void resetDaysCounter() {
-        daysCounter = 0;
+        page = 1;
     }
 }
