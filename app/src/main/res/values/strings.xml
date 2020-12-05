@@ -4,7 +4,7 @@
     <string name="loading">Loading…</string>
     <string name="loadingError">Loading error…</string>
     <string name="refresh">Refresh</string>
-    <string name="backInTime">No new posts for today, let\'s load yesterday ones</string>
+    <string name="tryNextPage">Let\'s try next feed...</string>
     <string name="browse">Browse</string>
     <string name="play">Play</string>
     <string name="info">Info</string>
