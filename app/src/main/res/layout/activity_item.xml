@@ -3,9 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/white"
     android:orientation="vertical"
-    tools:context=".MainActivity"
-    android:background="@android:color/white">
+    tools:context=".MainActivity">
 
     <include layout="@layout/toolbar" />
 
@@ -14,6 +14,42 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/toolbar" />
+
+    <LinearLayout
+        android:id="@+id/ll_next"
+        android:layout_width="?attr/actionBarSize"
+        android:layout_height="match_parent"
+        android:layout_alignTop="@id/vp_item"
+        android:layout_alignBottom="@id/vp_item"
+        android:layout_alignParentEnd="true"
+        android:background="@android:color/transparent"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/iv_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_media_next" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_prev"
+        android:layout_width="?attr/actionBarSize"
+        android:layout_height="match_parent"
+        android:layout_alignTop="@id/vp_item"
+        android:layout_alignBottom="@id/vp_item"
+        android:layout_alignParentStart="false"
+        android:background="@android:color/transparent"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/iv_prev"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_media_previous" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tv_pages"
@@ -25,7 +61,7 @@
         android:shadowDx="2"
         android:shadowDy="2"
         android:shadowRadius="1.5"
-        android:textAllCaps="true"
         android:textAlignment="center"
+        android:textAllCaps="true"
         android:textColor="@android:color/white" />
 </RelativeLayout>
