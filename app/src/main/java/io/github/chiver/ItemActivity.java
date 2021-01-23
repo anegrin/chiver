@@ -4,11 +4,10 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
-
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.Volley;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ShareCompat;
@@ -16,6 +15,11 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
+
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.Volley;
+
 import io.github.chiver.util.CachingImageLoader;
 
 public class ItemActivity extends BaseActivity {
@@ -26,6 +30,8 @@ public class ItemActivity extends BaseActivity {
     private ImageLoader imageLoader;
     private ViewPager vpItem;
     private String[] urls;
+    private View ivPrev;
+    private View ivNext;
 
     public ItemActivity() {
         super(false);
@@ -41,6 +47,72 @@ public class ItemActivity extends BaseActivity {
         vpItem.setCurrentItem(pos);
         vpItem.addOnPageChangeListener(new DisplayPage(findViewById(R.id.tv_pages), urls.length));
 
+        View llPrev = findViewById(R.id.ll_prev);
+        llPrev.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int currentItem = vpItem.getCurrentItem();
+                boolean hasPrev = currentItem > 0;
+                if (hasPrev) {
+                    vpItem.setCurrentItem(currentItem - 1);
+                }
+            }
+        });
+
+        View llNext = findViewById(R.id.ll_next);
+        llNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int currentItem = vpItem.getCurrentItem();
+                boolean hasNext = currentItem < urls.length - 1;
+                if (hasNext) {
+                    vpItem.setCurrentItem(currentItem + 1);
+                }
+            }
+        });
+
+        ivPrev = findViewById(R.id.iv_prev);
+        ivNext = findViewById(R.id.iv_next);
+
+        if (pos == 0) {
+            ivPrev.setVisibility(View.INVISIBLE);
+        } else if (pos == urls.length - 1) {
+            ivNext.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        fadeOut(ivPrev);
+        fadeOut(ivNext);
+    }
+
+    private void fadeOut(View view) {
+
+        if (view.getVisibility() == View.VISIBLE) {
+
+            Animation animation = AnimationUtils.loadAnimation(this, android.R.anim.fade_out);
+            animation.setDuration(1000);
+            animation.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    view.setVisibility(View.INVISIBLE);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
+
+            view.startAnimation(animation);
+        }
     }
 
     @Override
