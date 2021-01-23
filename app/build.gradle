@@ -7,14 +7,19 @@ android {
         applicationId "io.github.chiver"
         minSdkVersion 24
         targetSdkVersion 28
-        versionCode 110
-        versionName "1.1.0"
+        versionCode 111
+        versionName "1.1.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        dev {
+            applicationIdSuffix ".dev"
+            debuggable true
+            signingConfig signingConfigs.debug
         }
     }
     compileOptions {
