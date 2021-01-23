@@ -10,6 +10,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -35,6 +36,7 @@ public class MainActivity extends BaseActivity {
     private RequestQueue requestQueue;
     private int page = 1;
     private ProgressDialog progressDialog;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
 
     @Override
@@ -46,7 +48,7 @@ public class MainActivity extends BaseActivity {
         recyclerView.setHasFixedSize(true);
         adapter = new GalleryAdapter(this, getChiver().getSimpleDiskCache());
         recyclerView.setAdapter(adapter);
-        loadGalleries();
+        loadGalleries(false);
 
         GridLayoutManager layoutManager = (GridLayoutManager) recyclerView.getLayoutManager();
 
@@ -59,10 +61,18 @@ public class MainActivity extends BaseActivity {
                 if (layoutManager != null) {
                     boolean canScroll = layoutManager.findLastCompletelyVisibleItemPosition() < adapter.getItemCount() - 1;
                     if (!canScroll) {
-                        loadGalleries();
+                        loadGalleries(false);
                     }
                 }
 
+            }
+        });
+
+        swipeRefreshLayout = findViewById(R.id.srl_gallery_items);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                doRefresh();
             }
         });
     }
@@ -79,13 +89,13 @@ public class MainActivity extends BaseActivity {
         return R.layout.activity_main;
     }
 
-    private void loadGalleries() {
+    private void loadGalleries(boolean refresh) {
 
-        progressDialog.show();
+        onStartLoading(refresh);
 
         String url = page == 1 ? Constants.TC_MAIN_FEED : String.format(Locale.getDefault(), Constants.TC_FEED_PATTERN, page);
         StringRequest stringRequest = new StringRequest(url, response -> {
-            parseAndNotifyProgress(response, progressDialog);
+            parseAndNotifyProgress(response, refresh);
         }, error -> {
 
             if (error.networkResponse != null && error.networkResponse.statusCode == 404) {
@@ -93,18 +103,18 @@ public class MainActivity extends BaseActivity {
                 //sometimes we get 404 but even if we get proper response
                 if (isValidResponse(error.networkResponse.data)) {
                     String response = new String(error.networkResponse.data);
-                    parseAndNotifyProgress(response, progressDialog);
+                    parseAndNotifyProgress(response, refresh);
                 } else {
                     page++;
-                    progressDialog.dismiss();
+                    onEndLoading(refresh);
                     Toast.makeText(MainActivity.this, R.string.tryNextPage, Toast.LENGTH_SHORT).show();
-                    loadGalleries();
+                    loadGalleries(false);
                 }
                 return;
             }
 
             Log.e("Volley", error.toString());
-            progressDialog.dismiss();
+            onEndLoading(refresh);
             Toast.makeText(MainActivity.this, R.string.loadingError, Toast.LENGTH_SHORT).show();
         });
         getRequestQueue().add(stringRequest);
@@ -121,7 +131,7 @@ public class MainActivity extends BaseActivity {
                 && data[4] == 'l';
     }
 
-    private void parseAndNotifyProgress(String response, ProgressDialog progressDialog) {
+    private void parseAndNotifyProgress(String response, boolean refresh) {
         SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
         try {
             SAXParser saxParser = saxParserFactory.newSAXParser();
@@ -129,14 +139,34 @@ public class MainActivity extends BaseActivity {
             saxParser.parse(new InputSource(new StringReader(response)), handler);
         } catch (ParserConfigurationException | SAXException | IOException e) {
             Log.e("Volley", e.getMessage(), e);
-            progressDialog.dismiss();
+            onEndLoading(refresh);
             Toast.makeText(MainActivity.this, R.string.loadingError, Toast.LENGTH_SHORT).show();
         }
 
         page++;
 
         adapter.notifyDataSetChanged();
-        progressDialog.dismiss();
+        onEndLoading(refresh);
+    }
+
+    private void onStartLoading(boolean refresh) {
+        if (refresh) {
+            swipeRefreshLayout.setRefreshing(true);
+        } else {
+            progressDialog.show();
+        }
+    }
+
+    private void onEndLoading(boolean refresh) {
+        if (refresh) {
+            if (swipeRefreshLayout.isRefreshing()) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        } else {
+            if (progressDialog.isShowing()) {
+                progressDialog.dismiss();
+            }
+        }
     }
 
     private synchronized RequestQueue getRequestQueue() {
@@ -150,11 +180,14 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected boolean onRefresh(MenuItem item) {
+        doRefresh();
+        return super.onRefresh(item);
+    }
+
+    private void doRefresh() {
         adapter.clearItems();
         resetDaysCounter();
-        adapter.notifyDataSetChanged();
-        loadGalleries();
-        return super.onRefresh(item);
+        loadGalleries(true);
     }
 
     private void resetDaysCounter() {
