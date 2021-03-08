@@ -2,6 +2,7 @@
     <string name="app_name">Chiver</string>
     <string name="share">Share</string>
     <string name="loading">Loading…</string>
+    <string name="parsing">Loading and parsing…</string>
     <string name="loadingError">Loading error…</string>
     <string name="refresh">Refresh</string>
     <string name="tryNextPage">Let\'s try next feed...</string>

@@ -7,20 +7,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
 import com.android.volley.toolbox.Volley;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 import cz.fhucho.android.util.SimpleDiskCache;
 import io.github.chiver.ItemActivity;
 import io.github.chiver.R;
-import io.github.chiver.util.CachingImageLoader;
 import io.github.chiver.model.GalleryItem;
+import io.github.chiver.util.CachingImageLoader;
 
 public class GalleryItemAdapter extends RecyclerView.Adapter<GalleryItemAdapter.GalleryViewHolder> {
     private final Context context;
@@ -28,10 +30,14 @@ public class GalleryItemAdapter extends RecyclerView.Adapter<GalleryItemAdapter.
     private final SimpleDiskCache simpleDiskCache;
     private ImageLoader imageLoader;
 
-    public GalleryItemAdapter(List<GalleryItem> galleryItems, Context context, SimpleDiskCache simpleDiskCache) {
-        this.galleryItems = galleryItems;
+    public GalleryItemAdapter(Context context, SimpleDiskCache simpleDiskCache) {
+        this.galleryItems = new ArrayList<>();
         this.context = context;
         this.simpleDiskCache = simpleDiskCache;
+    }
+
+    public void addGalleryItem(GalleryItem galleryItem) {
+        galleryItems.add(galleryItem);
     }
 
     @NonNull

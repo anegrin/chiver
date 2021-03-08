@@ -3,10 +3,7 @@ package io.github.chiver.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class Gallery implements Parcelable {
 
@@ -24,21 +21,15 @@ public class Gallery implements Parcelable {
     public final String title;
     public final String imageSource;
     public final String link;
-    public final List<GalleryItem> galleryItems;
 
-    public Gallery(String title, String imageSource, String link, List<GalleryItem> galleryItems) {
+    public Gallery(String title, String imageSource, String link) {
         this.title = title;
         this.imageSource = imageSource;
         this.link = link;
-        this.galleryItems = galleryItems;
     }
 
     private Gallery(Parcel in) {
-        this(in.readString(), in.readString(), in.readString(), toGalleryItems(in.createStringArray()));
-    }
-
-    private static List<GalleryItem> toGalleryItems(String[] urls) {
-        return Arrays.stream(urls).map(GalleryItem::new).collect(Collectors.toList());
+        this(in.readString(), in.readString(), in.readString());
     }
 
     @Override
@@ -64,6 +55,5 @@ public class Gallery implements Parcelable {
         dest.writeString(title);
         dest.writeString(imageSource);
         dest.writeString(link);
-        dest.writeStringArray(galleryItems.stream().map(gi -> gi.imageSource).toArray(String[]::new));
     }
 }
