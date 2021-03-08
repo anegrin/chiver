@@ -17,4 +17,9 @@
         android:orientation="vertical"
         app:spanCount="3"
         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"/>
+    <WebView
+        android:id="@+id/wv_parser"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone" />
 </LinearLayout>

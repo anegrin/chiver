@@ -4,8 +4,6 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.util.function.Consumer;
 
 import io.github.chiver.model.Gallery;
@@ -19,7 +17,7 @@ public class FeedSAXParser extends DefaultHandler {
     private String currentLink;
     private String currentCategory;
     private String currentMediaUrl;
-    private List<GalleryItem> currentGalleryItems;
+    private GalleryItem currentGalleryItem;
     private boolean inItem = false;
 
     public FeedSAXParser(Consumer<Gallery> callback) {
@@ -60,16 +58,15 @@ public class FeedSAXParser extends DefaultHandler {
 
     private void startItem() {
         inItem = true;
-        currentGalleryItems = new LinkedList<>();
     }
 
     private void endItem() {
         inItem = false;
-        if (!currentGalleryItems.isEmpty()) {
-            callback.accept(new Gallery(currentTitle, currentGalleryItems.get(0).imageSource, currentLink, new LinkedList<>(currentGalleryItems)));
+        if (currentGalleryItem != null) {
+            callback.accept(new Gallery(currentTitle, currentGalleryItem.imageSource, currentLink));
         }
 
-        currentGalleryItems.clear();
+        currentGalleryItem = null;
     }
 
     private void startImage(Attributes attributes) {
@@ -79,7 +76,7 @@ public class FeedSAXParser extends DefaultHandler {
 
     private void endImage() {
         if (!"author".equals(currentCategory)) {
-            currentGalleryItems.add(new GalleryItem(currentMediaUrl));
+            currentGalleryItem = new GalleryItem(currentMediaUrl);
         }
         currentCategory = null;
     }
