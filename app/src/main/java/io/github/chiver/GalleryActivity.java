@@ -14,14 +14,7 @@ import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-
-import org.apache.commons.io.IOUtils;
-
-import java.io.IOException;
-import java.nio.charset.Charset;
 
 import io.github.chiver.adapter.GalleryItemAdapter;
 import io.github.chiver.model.Gallery;
@@ -32,7 +25,6 @@ public class GalleryActivity extends BaseActivity {
     public static final String GALLERY_KEY = "gallery";
 
     private Gallery gallery;
-    private RequestQueue requestQueue;
     private ProgressDialog progressDialog;
     private WebView wvParser;
 
@@ -87,30 +79,13 @@ public class GalleryActivity extends BaseActivity {
     private void fetch(WebView wvParser, String url) {
         progressDialog.show();
         StringRequest stringRequest = new StringRequest(url, response -> {
-            String parser = loadResource("parser.html");
-            String html = parser.replace("$placeholder$", response);
+            String parser = getChiver().getParser();
+            String html = parser.replace("$__c_body__$", response).replace("$__c_script__$", getChiver().getScript());
             wvParser.loadDataWithBaseURL(Constants.TC_BASE_URL, html, "text/html", "UTF-8", null);
         }, error -> {
             Toast.makeText(GalleryActivity.this, R.string.loadingError, Toast.LENGTH_SHORT).show();
         });
-        getRequestQueue().add(stringRequest);
-    }
-
-    private String loadResource(String res) throws RuntimeException {
-        try {
-            return IOUtils.toString(getResources().getAssets().open(res), Charset.defaultCharset());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private synchronized RequestQueue getRequestQueue() {
-        if (this.requestQueue == null) {
-            this.requestQueue = Volley.newRequestQueue(this);
-        }
-
-        return this.requestQueue;
-
+        getChiver().getRequestQueue().add(stringRequest);
     }
 
     private static class SearchWebAppInterface {

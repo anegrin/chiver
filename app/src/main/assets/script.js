@@ -1,4 +1,4 @@
-var tcparse = function() {
+document.addEventListener('DOMContentLoaded', (event) => {
     setTimeout(function(){
         console.info("Chiver is parsing :)");
         var nodes = document.querySelectorAll('div.gallery-icon > img,div.gallery-icon > video > source');
@@ -18,4 +18,4 @@ var tcparse = function() {
         }
         wai.notifyDataSetChanged();
     }, 500);
-}
+});

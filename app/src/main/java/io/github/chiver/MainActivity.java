@@ -12,9 +12,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -33,7 +31,6 @@ import io.github.chiver.util.FeedSAXParser;
 public class MainActivity extends BaseActivity {
 
     private GalleryAdapter adapter;
-    private RequestQueue requestQueue;
     private int page = 1;
     private ProgressDialog progressDialog;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -117,7 +114,7 @@ public class MainActivity extends BaseActivity {
             onEndLoading(refresh);
             Toast.makeText(MainActivity.this, R.string.loadingError, Toast.LENGTH_SHORT).show();
         });
-        getRequestQueue().add(stringRequest);
+        getChiver().getRequestQueue().add(stringRequest);
     }
 
     private boolean isValidResponse(byte[] data) {
@@ -167,15 +164,6 @@ public class MainActivity extends BaseActivity {
                 progressDialog.dismiss();
             }
         }
-    }
-
-    private synchronized RequestQueue getRequestQueue() {
-        if (this.requestQueue == null) {
-            this.requestQueue = Volley.newRequestQueue(this);
-        }
-
-        return this.requestQueue;
-
     }
 
     @Override
