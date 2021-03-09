@@ -1,7 +1,7 @@
 var tcparse = function() {
     setTimeout(function(){
-        console.info("The Chiver is parsing :)");
-        var nodes = document.querySelectorAll('img.attachment-gallery-item-medium,video > source');
+        console.info("Chiver is parsing :)");
+        var nodes = document.querySelectorAll('div.gallery-icon > img,div.gallery-icon > video > source');
         for(var i=0;i<nodes.length; i++){
             var a = nodes[i];
             var url = a.getAttribute("src");
