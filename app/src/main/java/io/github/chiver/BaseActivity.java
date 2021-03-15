@@ -63,6 +63,8 @@ abstract class BaseActivity extends AppCompatActivity {
                 return onRefresh(item);
             case R.id.mi_share:
                 return onShare(item);
+            case R.id.mi_autoplay:
+                return onAutoplay(item);
             case R.id.mi_browse:
                 return onBrowse(item);
             case R.id.mi_info:
@@ -90,6 +92,10 @@ abstract class BaseActivity extends AppCompatActivity {
     }
 
     boolean onBrowse(MenuItem item) {
+        return true;
+    }
+
+    boolean onAutoplay(MenuItem item) {
         return true;
     }
 

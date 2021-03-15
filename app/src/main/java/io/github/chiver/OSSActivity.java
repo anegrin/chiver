@@ -92,6 +92,7 @@ public class OSSActivity extends BaseActivity {
     @Override
     protected void _onCreateOptionsMenu(Menu menu) {
         menu.findItem(R.id.mi_refresh).setVisible(false);
+        menu.findItem(R.id.mi_autoplay).setVisible(false);
         menu.findItem(R.id.mi_share).setVisible(false);
         menu.findItem(R.id.mi_browse).setVisible(false);
     }

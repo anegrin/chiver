@@ -10,4 +10,7 @@
     <string name="play">Play</string>
     <string name="info">Info</string>
     <string name="oss_licenses">Open Source Licenses</string>
+    <string name="autoplay">Autoplay</string>
+    <string name="disablingAutoplay">Disabling GIF autoplay</string>
+    <string name="enablingAutoplay">Enabling GIF autoplay</string>
 </resources>
