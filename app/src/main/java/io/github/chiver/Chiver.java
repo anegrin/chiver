@@ -1,6 +1,7 @@
 package io.github.chiver;
 
 import android.app.Application;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.android.volley.RequestQueue;
@@ -17,10 +18,13 @@ import cz.fhucho.android.util.SimpleDiskCache;
 @SuppressWarnings("WeakerAccess")
 public class Chiver extends Application {
 
+    private static final String PREF_AUTOPLAY = "autoplay";
+
     private SimpleDiskCache simpleDiskCache;
     private RequestQueue requestQueue;
     private String script;
     private String parser;
+    private SharedPreferences preferences;
 
     public Chiver() {
     }
@@ -36,6 +40,7 @@ public class Chiver extends Application {
 
         StringRequest stringRequest = new StringRequest(Constants.REMOTE_SCRIPT_URL, response -> script = response, error -> Log.i(Constants.TAG, "Can't load remote script, using local asset"));
         getRequestQueue().add(stringRequest);
+        preferences = getSharedPreferences(getClass().getSimpleName(), MODE_PRIVATE);
     }
 
     public SimpleDiskCache getSimpleDiskCache() {
@@ -65,5 +70,15 @@ public class Chiver extends Application {
 
         return this.requestQueue;
 
+    }
+
+    public void setAutoplayEnabled(boolean enabled) {
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean(PREF_AUTOPLAY, enabled);
+        editor.apply();
+    }
+
+    public boolean isAutoplayEnabled() {
+        return preferences.getBoolean(PREF_AUTOPLAY, false);
     }
 }

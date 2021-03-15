@@ -10,11 +10,12 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageView;
 
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
 
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 import io.github.chiver.model.GalleryItem;
 
 @SuppressWarnings("WeakerAccess")
@@ -36,11 +37,13 @@ public class ItemFragment extends Fragment {
             "</html>";
     private final String url;
     private final ImageLoader imageLoader;
+    private final boolean autoplayEnabled;
     private View rootView;
 
-    public ItemFragment(String url, ImageLoader imageLoader) {
+    public ItemFragment(String url, ImageLoader imageLoader, boolean autoplayEnabled) {
         this.url = url;
         this.imageLoader = imageLoader;
+        this.autoplayEnabled = autoplayEnabled;
     }
 
     @Override
@@ -52,8 +55,12 @@ public class ItemFragment extends Fragment {
 
         if (isAGif(url)) {
             ImageView ivPlay = rootView.findViewById(R.id.iv_play);
-            ivPlay.setVisibility(View.VISIBLE);
-            ivPlay.setOnClickListener(this::onPlay);
+            if (autoplayEnabled) {
+                onPlay(ivPlay);
+            } else {
+                ivPlay.setVisibility(View.VISIBLE);
+                ivPlay.setOnClickListener(this::onPlay);
+            }
         }
 
         return rootView;
@@ -76,7 +83,6 @@ public class ItemFragment extends Fragment {
         webView.setHorizontalScrollBarEnabled(false);
 
         webView.getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
-
 
         webView.setBackgroundResource(android.R.color.transparent);
         rootView.findViewById(R.id.ll_gallery_item).setVisibility(View.VISIBLE);

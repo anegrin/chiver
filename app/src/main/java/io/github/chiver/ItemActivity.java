@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ShareCompat;
@@ -32,6 +33,7 @@ public class ItemActivity extends BaseActivity {
     private String[] urls;
     private View ivPrev;
     private View ivNext;
+    private MenuItem miAutoplay;
 
     public ItemActivity() {
         super(false);
@@ -118,8 +120,27 @@ public class ItemActivity extends BaseActivity {
     @Override
     protected void _onCreateOptionsMenu(Menu menu) {
         menu.findItem(R.id.mi_refresh).setVisible(false);
+        miAutoplay = menu.findItem(R.id.mi_autoplay);
+        miAutoplay.setVisible(true);
+        menu.findItem(R.id.mi_browse).setVisible(true);
+
+        if (getChiver().isAutoplayEnabled()) {
+            miAutoplay.setIcon(R.drawable.ic_disable_autoplay);
+        }
         menu.findItem(R.id.mi_share).setVisible(true);
         menu.findItem(R.id.mi_browse).setVisible(false);
+    }
+
+    @Override
+    protected boolean onAutoplay(MenuItem item) {
+
+        boolean enabled = getChiver().isAutoplayEnabled();
+
+        Toast.makeText(this, enabled ? R.string.disablingAutoplay : R.string.enablingAutoplay, Toast.LENGTH_SHORT).show();
+        getChiver().setAutoplayEnabled(!enabled);
+        miAutoplay.setIcon(enabled ? R.drawable.ic_enable_autoplay : R.drawable.ic_disable_autoplay);
+
+        return super.onAutoplay(item);
     }
 
     @Override
@@ -162,7 +183,7 @@ public class ItemActivity extends BaseActivity {
         @NonNull
         @Override
         public Fragment getItem(int position) {
-            return new ItemFragment(urls[position], imageLoader);
+            return new ItemFragment(urls[position], imageLoader, getChiver().isAutoplayEnabled());
         }
 
         @Override

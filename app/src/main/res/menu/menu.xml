@@ -11,6 +11,11 @@
         android:icon="@drawable/ic_menu_refresh"
         app:showAsAction="ifRoom"/>
 
+    <item android:id="@+id/mi_autoplay"
+        android:title="@string/autoplay"
+        android:icon="@drawable/ic_enable_autoplay"
+        app:showAsAction="ifRoom"/>
+
     <item android:id="@+id/mi_share"
         android:title="@string/share"
         android:icon="@drawable/ic_share"
