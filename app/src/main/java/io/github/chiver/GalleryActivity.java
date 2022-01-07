@@ -49,6 +49,7 @@ public class GalleryActivity extends BaseActivity {
         wvParser.getSettings().setJavaScriptEnabled(true);
         wvParser.getSettings().setLoadsImagesAutomatically(false);
         wvParser.getSettings().setBlockNetworkImage(true);
+        wvParser.getSettings().setDomStorageEnabled(true);
         wvParser.addJavascriptInterface(new SearchWebAppInterface(this, adapter), "wai");
 
         fetch(wvParser, gallery.link);
